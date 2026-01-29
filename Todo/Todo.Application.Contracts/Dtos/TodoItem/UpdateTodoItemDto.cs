@@ -1,6 +1,6 @@
 ﻿namespace Todo.Application.Contracts.Dtos.TodoItem;
 
-public class UpdateTodoItemDto
+public record UpdateTodoItemDto
 {
     /// <summary>
     /// Наименование задачи. Обязательно.

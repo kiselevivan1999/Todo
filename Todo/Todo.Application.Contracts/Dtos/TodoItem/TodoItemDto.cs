@@ -1,6 +1,6 @@
 ﻿namespace Todo.Application.Contracts.Dtos.TodoItem;
 
-public class TodoItemDto
+public record TodoItemDto
 {
     /// <summary>
     /// Идентификатор

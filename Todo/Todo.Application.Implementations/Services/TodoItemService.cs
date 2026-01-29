@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using Todo.Application.Abstractions.Services;
 using Todo.Application.Contracts.Dtos.TodoItem;
+using Todo.Application.Implementations.Specifications;
 using Todo.Application.Repositories.Abstractions;
 using Todo.Domain.Entities;
 using Todo.Domain.Enums;
@@ -36,10 +37,14 @@ internal class TodoItemService : ITodoItemService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    //TODO: Реализовать
-    public TodoItemDto[] GetByFilter(TodoItemFilterDto filter)
+    public async Task<TodoItemDto[]> GetByFilterAsync(TodoItemFilterDto filter, 
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var specification = new TodoItemByFilterSpecification(filter.IsCompleted, filter.Priority);
+
+        var todoItems = await _unitOfWork.TodoItemRepository
+            .FindAsync(specification, cancellationToken);
+        return todoItems.Adapt<TodoItemDto[]>();
     }
 
     public async Task<TodoItemDto> GetByIdAsync(int id, CancellationToken cancellationToken)

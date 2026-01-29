@@ -1,6 +1,6 @@
 ﻿namespace Todo.Application.Contracts.Dtos.TodoItem;
 
-public class CreateTodoItemDto
+public record CreateTodoItemDto
 {
     /// <summary>
     /// Наименование задачи. Обязательно.

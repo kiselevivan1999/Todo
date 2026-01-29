@@ -36,9 +36,10 @@ internal class TodoItemServiceValidationDecorator : ITodoItemService
         await _todoService.DeleteAsync(id, cancellationToken);
     }
 
-    public TodoItemDto[] GetByFilter(TodoItemFilterDto filter)
+    public async Task<TodoItemDto[]> GetByFilterAsync(TodoItemFilterDto filter, 
+         CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return await _todoService.GetByFilterAsync(filter, cancellationToken);
     }
 
     public async Task<TodoItemDto> GetByIdAsync(int id, CancellationToken cancellationToken)

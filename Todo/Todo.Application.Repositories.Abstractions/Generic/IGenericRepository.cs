@@ -1,4 +1,5 @@
-﻿using Todo.Domain.Entities;
+﻿using Todo.Application.Abstractions.Specifications;
+using Todo.Domain.Entities;
 
 namespace Todo.Application.Repositories.Abstractions.Generic;
 
@@ -17,7 +18,8 @@ public interface IGenericRepository<T, TPrimaryKey> where T : IEntity<TPrimaryKe
     /// <param name="cancellationToken"> Токен отмены. </param>
     /// <param name="asNoTracking"> Вызвать с AsNoTracking. </param>
     /// <returns> Список сущностей. </returns>
-    Task<List<T>> GetAllAsync(CancellationToken cancellationToken, bool asNoTracking = false);
+    Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default, 
+        bool asNoTracking = false);
 
     /// <summary>
     /// Получить сущность по Id.
@@ -32,7 +34,16 @@ public interface IGenericRepository<T, TPrimaryKey> where T : IEntity<TPrimaryKe
     /// <param name="id"> Id сущности. </param>
     /// <param name="cancellationToken"></param>
     /// <returns> Cущность. </returns>
-    Task<T> GetAsync(TPrimaryKey id, CancellationToken cancellationToken);
+    Task<T> GetAsync(TPrimaryKey id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Найти все записи по спецификации
+    /// </summary>
+    /// <param name="specification"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<IEnumerable<T>> FindAsync(ISpecification<T> specification,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Удалить сущность.
@@ -73,7 +84,7 @@ public interface IGenericRepository<T, TPrimaryKey> where T : IEntity<TPrimaryKe
     /// </summary>
     /// <param name="entity"> Сущность для добавления. </param>
     /// <returns> Добавленная сущность. </returns>
-    Task<T> AddAsync(T entity, CancellationToken cancellationToken);
+    Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Добавить в базу массив сущностей.
@@ -85,7 +96,7 @@ public interface IGenericRepository<T, TPrimaryKey> where T : IEntity<TPrimaryKe
     /// Добавить в базу массив сущностей.
     /// </summary>
     /// <param name="entities"> Массив сущностей. </param>
-    Task AddRangeAsync(ICollection<T> entities, CancellationToken cancellationToken);
+    Task AddRangeAsync(ICollection<T> entities, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Сохранить изменения.

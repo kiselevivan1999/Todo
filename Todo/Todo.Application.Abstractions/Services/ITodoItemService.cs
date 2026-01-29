@@ -8,8 +8,10 @@ public interface ITodoItemService
     /// Получить все задачи по фильтру
     /// </summary>
     /// <param name="filter"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    TodoItemDto[] GetByFilter(TodoItemFilterDto filter);
+    Task<TodoItemDto[]> GetByFilterAsync(TodoItemFilterDto filter,
+        CancellationToken cancellationToken);
     /// <summary>
     /// Получить конкретную запись по id
     /// </summary>

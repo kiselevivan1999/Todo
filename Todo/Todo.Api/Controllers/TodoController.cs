@@ -22,9 +22,10 @@ public class TodoController : ControllerBase
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpGet]
-    public ActionResult<TodoItemDto[]> GetByFilter(TodoItemFilterDto filter) 
+    public async Task<ActionResult<TodoItemDto[]>> GetByFilter([FromQuery] TodoItemFilterDto filter, 
+        CancellationToken cancellationToken) 
     {
-        var result = _todoItemService.GetByFilter(filter);
+        var result = await _todoItemService.GetByFilterAsync(filter, cancellationToken);
         return Ok(result);
     }
 
@@ -89,7 +90,7 @@ public class TodoController : ControllerBase
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Измененная задача</returns>
-    [HttpPatch("{id}")]
+    [HttpPatch("{id}/complete")]
     public async Task<ActionResult<TodoItemDto>> Complete(int id,
         CancellationToken cancellationToken) 
     {

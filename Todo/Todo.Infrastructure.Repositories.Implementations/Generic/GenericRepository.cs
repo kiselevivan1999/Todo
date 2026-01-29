@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Todo.Application.Abstractions.Specifications;
 using Todo.Application.Repositories.Abstractions.Generic;
 using Todo.Domain.Entities;
 
@@ -9,8 +10,8 @@ namespace Todo.Infrastructure.Repositories.Implementations.Generic;
 /// </summary>
 /// <typeparam name="T"> Тип сущности. </typeparam>
 /// <typeparam name="TPrimaryKey"> Тип первичного ключа. </typeparam>
-internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T, TPrimaryKey> where T
-        : class, IEntity<TPrimaryKey>
+internal abstract class GenericRepository<T, TPrimaryKey> 
+    : IGenericRepository<T, TPrimaryKey> where T : class, IEntity<TPrimaryKey>
 {
     protected readonly DbContext Context;
     private readonly DbSet<T> _entitySet;
@@ -39,7 +40,8 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     /// <param name="id"> Id сущности. </param>
     /// <param name="cancellationToken"></param>
     /// <returns> Cущность. </returns>
-    public virtual async Task<T> GetAsync(TPrimaryKey id, CancellationToken cancellationToken)
+    public virtual async Task<T> GetAsync(TPrimaryKey id, 
+        CancellationToken cancellationToken = default)
     {
         return await _entitySet.FindAsync(id, cancellationToken);
     }
@@ -64,11 +66,21 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     /// <param name="cancellationToken"> Токен отмены </param>
     /// <param name="asNoTracking"> Вызвать с AsNoTracking. </param>
     /// <returns> Список сущностей. </returns>
-    public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken, bool asNoTracking = false)
+    public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default,
+        bool asNoTracking = false)
     {
-        return await GetAll().ToListAsync(cancellationToken);
+        return await GetAll(asNoTracking).ToListAsync(cancellationToken);
     }
 
+    #endregion
+
+    #region Find
+    public async Task<IEnumerable<T>> FindAsync(ISpecification<T> specification, 
+        CancellationToken cancellationToken = default)
+    {
+        return await _entitySet.Where(specification.ToExpression())
+            .ToListAsync(cancellationToken);
+    }
     #endregion
 
     #region Create
@@ -89,7 +101,7 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     /// </summary>
     /// <param name="entity"> Сущность для добавления. </param>
     /// <returns> Добавленная сущность. </returns>
-    public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken)
+    public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         return (await _entitySet.AddAsync(entity, cancellationToken)).Entity;
     }
@@ -108,7 +120,8 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     /// Добавить в базу массив сущностей.
     /// </summary>
     /// <param name="entities"> Массив сущностей. </param>
-    public virtual async Task AddRangeAsync(ICollection<T> entities, CancellationToken cancellationToken)
+    public virtual async Task AddRangeAsync(ICollection<T> entities, 
+        CancellationToken cancellationToken = default)
     {
         if (entities == null || !entities.Any())
             return;
