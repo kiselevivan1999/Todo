@@ -8,7 +8,6 @@ using Todo.Domain.Enums;
 namespace Todo.Application.Implementations.Services;
 
 //TODO: Кастомные исключения + Middleware
-//TODO: Добавить валидацию
 internal class TodoItemService : ITodoItemService
 {
     private readonly IUnitOfWork _unitOfWork;
