@@ -10,7 +10,6 @@ public class TodoController : ControllerBase
 {
     private readonly ITodoItemService _todoItemService;
 
-    //TODO: Возвращать нормальные коды ответов
     public TodoController(ITodoItemService todoItemService)
     {
         _todoItemService = todoItemService;
@@ -22,6 +21,7 @@ public class TodoController : ControllerBase
     /// <param name="filter"></param>
     /// <returns></returns>
     [HttpGet]
+    [ProducesResponseType(typeof(TodoItemDto[]), StatusCodes.Status200OK)]
     public async Task<ActionResult<TodoItemDto[]>> GetByFilter([FromQuery] TodoItemFilterDto filter, 
         CancellationToken cancellationToken) 
     {
@@ -36,6 +36,8 @@ public class TodoController : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(TodoItemDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TodoItemDto>> GetById(int id, 
         CancellationToken cancellationToken)
     {
@@ -49,11 +51,13 @@ public class TodoController : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns>Созданная запись</returns>
     [HttpPost]
+    [ProducesResponseType(typeof(TodoItemDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TodoItemDto>> Create(CreateTodoItemDto createDto,
         CancellationToken cancellationToken)
     {
         var result = await _todoItemService.CreateAsync(createDto, cancellationToken);
-        return Ok(result);
+        return CreatedAtAction(nameof(GetById), new { id = result.Id}, result);
     }
 
     /// <summary>
@@ -63,6 +67,9 @@ public class TodoController : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns>Обнавленная запись</returns>
     [HttpPut("{id}")]
+    [ProducesResponseType(typeof(TodoItemDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TodoItemDto>> Update(int id, 
         UpdateTodoItemDto updateDto,
         CancellationToken cancellationToken)
@@ -78,10 +85,12 @@ public class TodoController : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(int id, CancellationToken cancellationToken) 
     {
         await _todoItemService.DeleteAsync(id, cancellationToken);
-        return Ok();
+        return NoContent();
     }
 
     /// <summary>
@@ -91,6 +100,8 @@ public class TodoController : ControllerBase
     /// <param name="cancellationToken"></param>
     /// <returns>Измененная задача</returns>
     [HttpPatch("{id}/complete")]
+    [ProducesResponseType(typeof(TodoItemDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TodoItemDto>> Complete(int id,
         CancellationToken cancellationToken) 
     {
