@@ -1,6 +1,8 @@
 ﻿using Mapster;
+using System.Threading;
 using Todo.Application.Abstractions.Services;
 using Todo.Application.Contracts.Dtos.TodoItem;
+using Todo.Application.Contracts.Exceptions;
 using Todo.Application.Implementations.Specifications;
 using Todo.Application.Repositories.Abstractions;
 using Todo.Domain.Entities;
@@ -8,7 +10,6 @@ using Todo.Domain.Enums;
 
 namespace Todo.Application.Implementations.Services;
 
-//TODO: Кастомные исключения + Middleware
 internal class TodoItemService : ITodoItemService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -29,10 +30,7 @@ internal class TodoItemService : ITodoItemService
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken)
     {
-        var todoItem = await _unitOfWork.TodoItemRepository.GetAsync(id, cancellationToken);
-        if (todoItem is null)
-            throw new ArgumentNullException("Задача не найдена.");
-        
+        var todoItem = await GetTodoItemAsync(id, cancellationToken);
         _unitOfWork.TodoItemRepository.Delete(todoItem);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
@@ -49,19 +47,13 @@ internal class TodoItemService : ITodoItemService
 
     public async Task<TodoItemDto> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var todoItem = await _unitOfWork.TodoItemRepository.GetAsync(id, cancellationToken);
-        if (todoItem is null)
-            throw new ArgumentNullException("Задача не найдена.");
-
+        var todoItem = await GetTodoItemAsync(id, cancellationToken);
         return todoItem.Adapt<TodoItemDto>();
     }
 
     public async Task<TodoItemDto> CompleteAsync(int id, CancellationToken cancellationToken)
     {
-        var todoItem = await _unitOfWork.TodoItemRepository.GetAsync(id, cancellationToken);
-
-        if (todoItem is null)
-            throw new ArgumentNullException("Задача не найдена.");
+        var todoItem = await GetTodoItemAsync(id, cancellationToken);
 
         todoItem.Complete();
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -72,9 +64,7 @@ internal class TodoItemService : ITodoItemService
     public async Task<TodoItemDto> UpdateAsync(int id, UpdateTodoItemDto updateDto, 
         CancellationToken cancellationToken)
     {
-        var todoItem = await _unitOfWork.TodoItemRepository.GetAsync(id, cancellationToken);
-        if (todoItem is null)
-            throw new ArgumentNullException("Задача не найдена.");
+        var todoItem = await GetTodoItemAsync(id, cancellationToken);
 
         //TODO: настроить в маппинге
         todoItem.Title = updateDto.Title;
@@ -85,5 +75,20 @@ internal class TodoItemService : ITodoItemService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return todoItem.Adapt<TodoItemDto>();
+    }
+
+    /// <summary>
+    /// Вытаскиваем запись по id с проверкой на её наличие
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <exception cref="TodoItemNotFoundException"></exception>
+    private async Task<TodoItem> GetTodoItemAsync(int id, CancellationToken cancellationToken) 
+    {
+        var todoItem = await _unitOfWork.TodoItemRepository.GetAsync(id, cancellationToken);
+        if (todoItem is null)
+            throw new TodoItemNotFoundException(id);
+
+        return todoItem;
     }
 }

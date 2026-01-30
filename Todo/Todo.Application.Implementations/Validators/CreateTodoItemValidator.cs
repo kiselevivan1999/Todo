@@ -8,7 +8,7 @@ internal class CreateTodoItemValidator : AbstractValidator<CreateTodoItemDto>
     public CreateTodoItemValidator()
     {
         RuleFor(todo => todo.Title).NotNull().NotEmpty().Length(1, 200);
-        RuleFor(todo => todo.Title).Length(1, 1000);
+        RuleFor(todo => todo.Description).Length(1, 1000);
     }
 }
 
