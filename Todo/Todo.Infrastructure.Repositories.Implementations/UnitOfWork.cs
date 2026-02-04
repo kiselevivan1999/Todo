@@ -1,7 +1,6 @@
 ﻿using Todo.Application.Repositories.Abstractions;
 using Todo.Application.Repositories.Abstractions.Repositories;
 using Todo.Infrastructure.EntityFramework.Context;
-using Todo.Infrastructure.Repositories.Implementations.Repositories;
 
 namespace Todo.Infrastructure.Repositories.Implementations;
 
@@ -13,10 +12,10 @@ internal class UnitOfWork : IUnitOfWork
 
     public ITodoItemRepository TodoItemRepository => _todoItemRepository;
 
-    public UnitOfWork(TodoDbContext context) 
+    public UnitOfWork(TodoDbContext context, ITodoItemRepository todoItemRepository) 
     {
         _context = context;
-        _todoItemRepository = new TodoItemRepository(context);
+        _todoItemRepository = todoItemRepository;
     }
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken)

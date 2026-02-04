@@ -1,5 +1,4 @@
 ﻿using Mapster;
-using System.Threading;
 using Todo.Application.Abstractions.Services;
 using Todo.Application.Contracts.Dtos.TodoItem;
 using Todo.Application.Contracts.Exceptions;

@@ -30,7 +30,7 @@ public class TodoItem : IEntity<int>
     /// <summary>
     /// Дата начала задачи. Заполняется автоматически.
     /// </summary>
-    public DateTime CreatedAt { get; } = DateTime.Now;
+    public DateTime CreatedAt { get; } = DateTime.UtcNow;
     /// <summary>
     /// Дата завершения задачи. Заполняется при выполнении.
     /// </summary>

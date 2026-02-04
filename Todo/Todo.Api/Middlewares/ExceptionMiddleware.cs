@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Microsoft.AspNetCore.Mvc;
 using Todo.Application.Contracts.Errors;
 using Todo.Application.Contracts.Exceptions;
 
@@ -8,12 +7,10 @@ namespace Todo.Api.Middlewares;
 public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionMiddleware> _logger;
 
-    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+    public ExceptionMiddleware(RequestDelegate next)
     {
         _next = next;
-        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context) 
@@ -41,7 +38,13 @@ public class ExceptionMiddleware
         }
         catch (Exception ex)
         {
-            context.Response.StatusCode = 500;
+            var statusCode = (int)HttpStatusCode.InternalServerError;
+            var response = context.Response;
+
+            response.StatusCode = statusCode;
+            response.ContentType = "application/json";
+            var apiError = new ApiError(statusCode, ex.Message, ex.StackTrace);
+            await response.WriteAsJsonAsync(apiError);
         }
     }
 }
